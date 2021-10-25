@@ -1,7 +1,9 @@
+<!--
+ * @Description: 
+ * @Date: 2021-08-03 14:12:57
+-->
 
-# components
-日历 - calendar
-轮播 - SwiperAround
+
 ## Project setup
 ```
 pnpm install
