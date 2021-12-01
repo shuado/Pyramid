@@ -1,3 +1,7 @@
+<!--
+ * @Description:
+ * @Date: 2021-10-09 10:56:46
+-->
 <template>
   <div id="canvas-warpper">
     <div id="canvas-tooltip"></div>
@@ -25,6 +29,10 @@ export default {
           fontFormatter: () => {
             return 'default'
           },
+          // 鼠标点击事件
+          lMouseClick: false,
+          // 鼠标移动事件
+          lMouseMove: false,
           // tooltip信息配置
           tooltip: {
             show: true, // 是否显示
@@ -53,14 +61,7 @@ export default {
     data: {
       type: Array,
       default: () => {
-        return [
-          { name: 'name1', value: 11 },
-          { name: 'name2', value: 11 },
-          { name: 'name3', value: 11 },
-          { name: 'name4', value: 77 },
-          { name: 'name5', value: 55 },
-          { name: 'name6', value: 66 }
-        ]
+        return []
       }
     }
   },
@@ -69,6 +70,7 @@ export default {
       immediate: true,
       deep: true,
       handler(newValue) {
+        if (!newValue || !newValue.length) return
         // 数据总量
         let totalData = 0
         newValue.forEach(element => {
@@ -87,6 +89,7 @@ export default {
             return b.value - a.value
           })
         }
+        this.init()
       }
     }
   },
@@ -100,6 +103,10 @@ export default {
         offset: this.options.offset ? this.options.offset : [0, 0],
         // 排序(max , min)优先
         sort: this.options.sort ? this.options.sort : '',
+        // 鼠标点击事件
+        lMouseClick: this.options.lMouseClick ? this.options.lMouseClick : false,
+        // 鼠标移动事件
+        lMouseMove: this.options.lMouseMove ? this.options.lMouseMove : false,
         // 颜色
         color: this.options.color ? this.options.color : ['#80FFA5', '#00DDFF', '#37A2FF', '#FF0087', '#FFBF00'],
         // 格式化字体输出
@@ -232,9 +239,7 @@ export default {
     }
   },
   async created() {},
-  mounted() {
-    this.init()
-  },
+  mounted() {},
   methods: {
     init() {
       this.initCanvasBaseInfo()
@@ -247,7 +252,7 @@ export default {
      * @description: 初始化canvas基本信息
      * @param {*}
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     initCanvasBaseInfo() {
       let el = document.getElementById('canvas-warpper')
@@ -302,14 +307,18 @@ export default {
      * @description: 鼠标事件注册
      * @param {*}
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     eventRegistered() {
       const canvasWarpper = document.getElementById('canvas-warpper')
       //注册事件
-      canvasWarpper.addEventListener('mousedown', this.doMouseDown, false)
       canvasWarpper.addEventListener('mouseup', this.doMouseUp, false)
-      canvasWarpper.addEventListener('mousemove', this.doMouseMove, false)
+      if (this.integration.lMouseClick) {
+        canvasWarpper.addEventListener('mousedown', this.doMouseDown, false)
+      }
+      if (this.integration.lMouseMove) {
+        canvasWarpper.addEventListener('mousemove', this.doMouseMove, false)
+      }
       // //注册事件
       // this.canvas.addEventListener('mousedown', this.doMouseDown, false)
       // this.canvas.addEventListener('mouseup', this.doMouseUp, false)
@@ -319,15 +328,23 @@ export default {
      * @description: 鼠标按下
      * @param {*} e
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     // eslint-disable-next-line no-unused-vars
-    doMouseDown(e) {},
+    doMouseDown(e) {
+      if (this.integration.lMouseClick) {
+        const x = e.pageX
+        const y = e.pageY
+        if (this.determineDataMouse(this.getLocation(x, y))) {
+          this.$emit('pyramidClick', this.determineDataMouse(this.getLocation(x, y)))
+        }
+      }
+    },
     /**
      * @description: 鼠标弹起
      * @param {*} e
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     // eslint-disable-next-line no-unused-vars
     doMouseUp(e) {},
@@ -335,7 +352,7 @@ export default {
      * @description: 鼠标移动
      * @param {*} e
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     // eslint-disable-next-line no-unused-vars
     doMouseMove(e) {
@@ -351,7 +368,7 @@ export default {
      *  @description 判断一个点是否在多边形内部
      *  @param points 多边形坐标集合
      *  @param testPoint 测试点坐标
-     *  @author: 舒冬冬
+     *  @author: 舒
      *  返回true为真，false为假
      */
     insidePolygon(points, testPoint) {
@@ -373,7 +390,7 @@ export default {
      * @description: 获取当前鼠标坐标
      * @param {*}
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     getLocation(x, y) {
       const bbox = this.canvas.getBoundingClientRect()
@@ -388,7 +405,7 @@ export default {
      * @param {*} angle 旋转角度°  -- [angle * M_PI / 180]:将角度换算为弧度
      * 【注意】angle 逆时针为正，顺时针为负
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     rotatePoint(ptSrc, ptRotationCenter, angle) {
       const a = ptRotationCenter[0]
@@ -404,7 +421,7 @@ export default {
     /**
      * @description: 求3点之间角度
      * @return {*} 点 a 的角度
-     * @author: 舒冬冬
+     * @author: 舒
      */
     angle(a, b, c) {
       const A = { X: a[0], Y: a[1] }
@@ -420,7 +437,7 @@ export default {
     /**
      * @description: 计算两点之间距离
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     getDistanceBetweenTwoPoints(a, b) {
       const A = a[0] - b[0]
@@ -432,7 +449,7 @@ export default {
      * @description: 计算数据的点位置
      * @param {*} val 点占比
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     calculationPointPosition(val) {
       const LP = this.rotatePoint(this.point.left, this.point.top, this.topAngle.LTB * -1)
@@ -532,7 +549,7 @@ export default {
      * @description: 判断鼠标在哪层位置上
      * @param {*}
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     determineDataMouse(mouseLocation) {
       let req = false
@@ -548,7 +565,7 @@ export default {
      * @description: 绘画主体
      * @param {*}
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     paintingBody() {
       // // 右半边金字塔
@@ -589,7 +606,7 @@ export default {
      * @description: 数据图层绘画
      * @param {*}
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     paintDataInfo() {
       // let data = JSON.parse(JSON.stringify(this.dataInfo))
@@ -608,7 +625,7 @@ export default {
         this.ctx.beginPath()
         let point1, point2, point3, point4, point5, point6
         if (index === 0) {
-          [point1, point2, point3, point4, point5, point6] = [
+          ;[point1, point2, point3, point4, point5, point6] = [
             item.temporary.left[0],
             item.temporary.left[1],
             item.temporary.middle[1],
@@ -617,7 +634,7 @@ export default {
             item.temporary.middle[0]
           ]
         } else {
-          [point1, point2, point3, point4, point5, point6] = [
+          ;[point1, point2, point3, point4, point5, point6] = [
             this.dataInfo[index - 1].temporary.left[1],
             item.temporary.left[1],
             item.temporary.middle[1],
@@ -648,7 +665,7 @@ export default {
      * 此方法请在 paintDataInfo() 执行后使用
      * @param {*}
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     paintingText(lData) {
       this.ctx.shadowColor = 'rgba(90,90,90,0)'
@@ -733,7 +750,7 @@ export default {
      * @param {*} lData 当前层级
      * @param {*} coordinates 鼠标位置
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     showTooltip(lData, coordinates) {
       let canvasWarpper = document.getElementById('canvas-warpper')
@@ -788,7 +805,7 @@ export default {
      * @description: 高亮某一层级
      * @param {*} lData 层级数据
      * @return {*}
-     * @author: 舒冬冬
+     * @author: 舒
      */
     highlightCurrentRegion(lData) {
       // const width = this.canvas.width;
