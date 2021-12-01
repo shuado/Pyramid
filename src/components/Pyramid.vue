@@ -67,13 +67,16 @@ export default {
   },
   watch: {
     data: {
-      immediate: true,
+      // immediate: true,
       deep: true,
       handler(newValue) {
-        if (!newValue || !newValue.length) return
+        if (!newValue || !newValue.length) return false
         // 数据总量
         let totalData = 0
         newValue.forEach(element => {
+          if (isNaN(element.value)) {
+            throw '"data" 中的数据类型错误，请检查 "value" 的数据类型'
+          }
           totalData = totalData + Number(element.value)
         })
         this.dataInfo = newValue.map(item => {
@@ -625,7 +628,7 @@ export default {
         this.ctx.beginPath()
         let point1, point2, point3, point4, point5, point6
         if (index === 0) {
-          [point1, point2, point3, point4, point5, point6] = [
+          ;[point1, point2, point3, point4, point5, point6] = [
             item.temporary.left[0],
             item.temporary.left[1],
             item.temporary.middle[1],
@@ -634,7 +637,7 @@ export default {
             item.temporary.middle[0]
           ]
         } else {
-          [point1, point2, point3, point4, point5, point6] = [
+          ;[point1, point2, point3, point4, point5, point6] = [
             this.dataInfo[index - 1].temporary.left[1],
             item.temporary.left[1],
             item.temporary.middle[1],
