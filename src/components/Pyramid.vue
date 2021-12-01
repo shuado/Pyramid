@@ -625,7 +625,7 @@ export default {
         this.ctx.beginPath()
         let point1, point2, point3, point4, point5, point6
         if (index === 0) {
-          ;[point1, point2, point3, point4, point5, point6] = [
+          [point1, point2, point3, point4, point5, point6] = [
             item.temporary.left[0],
             item.temporary.left[1],
             item.temporary.middle[1],
@@ -634,7 +634,7 @@ export default {
             item.temporary.middle[0]
           ]
         } else {
-          ;[point1, point2, point3, point4, point5, point6] = [
+          [point1, point2, point3, point4, point5, point6] = [
             this.dataInfo[index - 1].temporary.left[1],
             item.temporary.left[1],
             item.temporary.middle[1],
