@@ -69,7 +69,11 @@ export default {
     data: {
       deep: true,
       handler(newValue) {
-        this.init()
+        if (!this.data || !this.data.length) {
+          this.init()
+        } else {
+          this.init()
+        }
       }
     }
   },
@@ -225,6 +229,39 @@ export default {
   methods: {
     init() {
       if (!this.data || !this.data.length) return false
+      this.dataFormatAssignment()
+      this.elementCreate()
+      this.initCanvasBaseInfo()
+      this.paintDataInfo()
+      this.paintingText()
+      this.paintingBody()
+      this.eventRegistered()
+    },
+    /**
+     * @description: 创建元素
+     * @param {*}
+     * @return {*}
+     * @author: 舒
+     */
+    elementCreate() {
+      let el = document.getElementById('canvas-warpper')
+      if (this.canvas) {
+        el.removeChild(this.canvas)
+      }
+      // 创建canvas元素
+      this.canvas = document.createElement('canvas')
+      // 把canvas元素节点添加在el元素下
+      el.appendChild(this.canvas)
+      this.canvasWidth = el.offsetWidth
+      this.canvasHeight = el.offsetHeight
+    },
+    /**
+     * @description: 数据格式赋值
+     * @param {*}
+     * @return {*}
+     * @author: 舒
+     */
+    dataFormatAssignment() {
       // 数据总量
       let totalData = 0
       this.data.forEach(element => {
@@ -246,11 +283,6 @@ export default {
           return b.value - a.value
         })
       }
-      this.initCanvasBaseInfo()
-      this.paintDataInfo()
-      this.paintingText()
-      this.paintingBody()
-      this.eventRegistered()
     },
     /**
      * @description: 初始化canvas基本信息
@@ -259,13 +291,6 @@ export default {
      * @author: 舒
      */
     initCanvasBaseInfo() {
-      let el = document.getElementById('canvas-warpper')
-      // 创建canvas元素
-      this.canvas = document.createElement('canvas')
-      // 把canvas元素节点添加在el元素下
-      el.appendChild(this.canvas)
-      this.canvasWidth = el.offsetWidth
-      this.canvasHeight = el.offsetHeight
       // 将canvas元素设置与父元素同宽
       this.canvas.setAttribute('width', this.canvasWidth)
       // 将canvas元素设置与父元素同高
@@ -629,7 +654,7 @@ export default {
         this.ctx.beginPath()
         let point1, point2, point3, point4, point5, point6
         if (index === 0) {
-          ;[point1, point2, point3, point4, point5, point6] = [
+          [point1, point2, point3, point4, point5, point6] = [
             item.temporary.left[0],
             item.temporary.left[1],
             item.temporary.middle[1],
@@ -638,7 +663,7 @@ export default {
             item.temporary.middle[0]
           ]
         } else {
-          ;[point1, point2, point3, point4, point5, point6] = [
+          [point1, point2, point3, point4, point5, point6] = [
             this.dataInfo[index - 1].temporary.left[1],
             item.temporary.left[1],
             item.temporary.middle[1],
