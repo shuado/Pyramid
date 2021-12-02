@@ -3,7 +3,7 @@
  * @Date: 2021-10-09 10:56:46
 -->
 <template>
-  <div id="canvas-warpper">
+  <div ref="canvas-warpper" id="canvas-warpper">
     <div id="canvas-tooltip"></div>
   </div>
 </template>
@@ -67,31 +67,8 @@ export default {
   },
   watch: {
     data: {
-      // immediate: true,
       deep: true,
       handler(newValue) {
-        if (!newValue || !newValue.length) return false
-        // 数据总量
-        let totalData = 0
-        newValue.forEach(element => {
-          if (isNaN(element.value)) {
-            throw '"data" 中的数据类型错误，请检查 "value" 的数据类型'
-          }
-          totalData = totalData + Number(element.value)
-        })
-        this.dataInfo = newValue.map(item => {
-          const accounted = (item.value / totalData) * 100
-          return { ...item, accounted, title: this.integration.title }
-        })
-        if (this.integration.sort === 'max') {
-          this.dataInfo.sort((a, b) => {
-            return a.value - b.value
-          })
-        } else if (this.integration.sort === 'min') {
-          this.dataInfo.sort((a, b) => {
-            return b.value - a.value
-          })
-        }
         this.init()
       }
     }
@@ -242,9 +219,33 @@ export default {
     }
   },
   async created() {},
-  mounted() {},
+  mounted() {
+    this.init()
+  },
   methods: {
     init() {
+      if (!this.data || !this.data.length) return false
+      // 数据总量
+      let totalData = 0
+      this.data.forEach(element => {
+        if (isNaN(element.value)) {
+          throw '"data" 中的数据类型错误，请检查 "value" 的数据类型'
+        }
+        totalData = totalData + Number(element.value)
+      })
+      this.dataInfo = this.data.map(item => {
+        const accounted = (item.value / totalData) * 100
+        return { ...item, accounted, title: this.integration.title }
+      })
+      if (this.integration.sort === 'max') {
+        this.dataInfo.sort((a, b) => {
+          return a.value - b.value
+        })
+      } else if (this.integration.sort === 'min') {
+        this.dataInfo.sort((a, b) => {
+          return b.value - a.value
+        })
+      }
       this.initCanvasBaseInfo()
       this.paintDataInfo()
       this.paintingText()
