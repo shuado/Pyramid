@@ -35,7 +35,7 @@ export default {
           lMouseMove: false,
           // tooltip信息配置
           tooltip: {
-            show: true, // 是否显示
+            show: false, // 是否显示
             fontColor: '#000', //  字体内部颜色
             fontSize: 14, // 字体大小
             backgroundColor: '#fff', // tooltip背景
@@ -101,7 +101,7 @@ export default {
             },
         // tooltip显示
         tooltip: {
-          show: this.options.tooltip ? (this.options.tooltip.show ? this.options.tooltip.show : true) : true, // 是否显示
+          show: this.options.tooltip ? (this.options.tooltip.show ? this.options.tooltip.show : false) : false, // 是否显示
           fontColor: this.options.tooltip
             ? this.options.tooltip.fontColor
               ? this.options.tooltip.fontColor
@@ -229,13 +229,17 @@ export default {
   methods: {
     init() {
       if (!this.data || !this.data.length) return false
-      this.dataFormatAssignment()
-      this.elementCreate()
-      this.initCanvasBaseInfo()
-      this.paintDataInfo()
-      this.paintingText()
-      this.paintingBody()
-      this.eventRegistered()
+      this.removeEvent()
+      if (this.dataFormatAssignment()) {
+        this.elementCreate()
+        this.initCanvasBaseInfo()
+        this.paintDataInfo()
+        this.paintingText()
+        this.paintingBody()
+        this.eventRegistered()
+      } else {
+        this.elementCreate()
+      }
     },
     /**
      * @description: 创建元素
@@ -283,6 +287,7 @@ export default {
           return b.value - a.value
         })
       }
+      return totalData
     },
     /**
      * @description: 初始化canvas基本信息
@@ -352,6 +357,23 @@ export default {
       // this.canvas.addEventListener('mousedown', this.doMouseDown, false)
       // this.canvas.addEventListener('mouseup', this.doMouseUp, false)
       // this.canvas.addEventListener('mousemove', this.doMouseMove, false)
+    },
+    /**
+     * @description: 鼠标事件注销
+     * @param {*}
+     * @return {*}
+     * @author: 舒
+     */
+    removeEvent() {
+      const canvasWarpper = document.getElementById('canvas-warpper')
+      //注册事件
+      canvasWarpper.removeEventListener('mouseup', this.doMouseUp, false)
+      if (this.integration.lMouseClick) {
+        canvasWarpper.removeEventListener('mousedown', this.doMouseDown, false)
+      }
+      if (this.integration.lMouseMove) {
+        canvasWarpper.removeEventListener('mousemove', this.doMouseMove, false)
+      }
     },
     /**
      * @description: 鼠标按下
@@ -654,7 +676,7 @@ export default {
         this.ctx.beginPath()
         let point1, point2, point3, point4, point5, point6
         if (index === 0) {
-          [point1, point2, point3, point4, point5, point6] = [
+          ;[point1, point2, point3, point4, point5, point6] = [
             item.temporary.left[0],
             item.temporary.left[1],
             item.temporary.middle[1],
@@ -663,7 +685,7 @@ export default {
             item.temporary.middle[0]
           ]
         } else {
-          [point1, point2, point3, point4, point5, point6] = [
+          ;[point1, point2, point3, point4, point5, point6] = [
             this.dataInfo[index - 1].temporary.left[1],
             item.temporary.left[1],
             item.temporary.middle[1],
